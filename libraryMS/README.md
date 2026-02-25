@@ -47,16 +47,9 @@ Before running this application, make sure you have the following installed:
 - **MongoDB** (local installation or MongoDB Atlas)
 - **npm** or **yarn** package manager
 
-## Installation & Setup
+##  Setup
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/PLP-MERN-Stack-Development/libraryMS.git
-cd libraryMS
-```
-
-### 2. Backend Setup
+### 1. Backend Setup
 
 ```bash
 # Navigate to backend directory
@@ -80,7 +73,7 @@ npm start
 
 The backend server will start on http://localhost:5000
 
-### 3. Frontend Setup
+### 2. Frontend Setup
 
 Open a new terminal window:
 
@@ -102,7 +95,7 @@ npm run dev
 
 The frontend development server will start on http://localhost:5173
 
-### 4. Database Setup
+### 3. Database Setup
 
 If you're using local MongoDB:
 
