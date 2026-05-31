@@ -22,6 +22,8 @@ const bookRoutes = require('./routes/bookRoutes');
 const userRoutes = require('./routes/userRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const publicRoutes = require('./routes/publicRoutes');
+const ebookRoutes = require('./routes/ebookRoutes');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
@@ -41,12 +43,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
+// Serve static uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Routes
 app.use('/api/public', publicRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/ebooks', ebookRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

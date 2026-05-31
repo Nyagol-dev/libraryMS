@@ -82,6 +82,20 @@ const createBook = async (req, res) => {
       addedBy: req.user._id
     };
 
+    if (req.file) {
+      bookData.fileUrl = req.file.path;
+      bookData.fileSize = req.file.size;
+      
+      const mime = req.file.mimetype;
+      if (mime === 'application/pdf') {
+        bookData.fileFormat = 'PDF';
+      } else if (mime === 'application/epub+zip') {
+        bookData.fileFormat = 'EPUB';
+      } else if (mime === 'application/x-mobipocket-ebook') {
+        bookData.fileFormat = 'MOBI';
+      }
+    }
+
     // Set availableCopies to totalCopies if not provided
     if (bookData.availability && !bookData.availability.availableCopies) {
       bookData.availability.availableCopies = bookData.availability.totalCopies || 1;

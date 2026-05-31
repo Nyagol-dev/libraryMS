@@ -11,12 +11,13 @@ const { protect, admin } = require('../middleware/auth');
 const { optionalAuth } = require('../middleware/optionalAuth');
 
 const { cacheMiddleware } = require('../middleware/cache');
+const upload = require('../middleware/upload');
 
 const router = express.Router();
 
 router.route('/')
   .get(cacheMiddleware(300), getBooks)
-  .post(protect, admin, createBook);
+  .post(protect, admin, upload.single('file'), createBook);
 
 router.get('/search', searchBooks);
 

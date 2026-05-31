@@ -54,6 +54,22 @@ const transactionSchema = new mongoose.Schema({
   isOverdue: {
     type: Boolean,
     default: false
+  },
+  downloadToken: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  downloadTokenExpiry: {
+    type: Date
+  },
+  downloadCount: {
+    type: Number,
+    default: 0
+  },
+  maxDownloads: {
+    type: Number,
+    default: 3
   }
 }, {
   timestamps: true
