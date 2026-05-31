@@ -214,49 +214,61 @@ const returnBook = async (req, res) => {
 // @access  Private (Admin)
 const completeReturn = async (req, res) => {
   try {
+    // Step 1: Find and validate the return transaction
     const transaction = await Transaction.findById(req.params.id);
-    
+
     if (!transaction) {
       return res.status(404).json({ message: 'Transaction not found' });
     }
-    
+
     if (transaction.type !== 'return' || transaction.status !== 'approved') {
       return res.status(400).json({ message: 'Invalid transaction for completion' });
     }
-    
-    transaction.status = 'completed';
-    transaction.returnedAt = new Date();
-    
-    // Check for overdue and calculate fine
+
+    // Step 2: Find the original issue transaction for this user + book
     const issueTransaction = await Transaction.findOne({
       user: transaction.user,
       book: transaction.book,
       type: 'issue',
       status: 'approved'
     });
-    
+
+    // Step 3: Calculate fine if overdue, then save issueTransaction BEFORE marking return complete
     if (issueTransaction && issueTransaction.dueDate < new Date()) {
-      await issueTransaction.checkOverdue();
+      const now = new Date();
+      const dueDate = new Date(issueTransaction.dueDate);
+      const daysOverdue = Math.ceil((now - dueDate) / 86400000);
+      const fineAmount = daysOverdue * (parseFloat(process.env.FINE_PER_DAY) || 2);
+
+      issueTransaction.isOverdue = true;
+      issueTransaction.fineAmount = fineAmount;
+      await issueTransaction.save();
     }
-    
-    // Update book availability
+
+    // Step 4: Mark the return transaction as completed
+    transaction.status = 'completed';
+    transaction.returnedAt = new Date();
+
+    // Step 5: Persist the return transaction
+    await transaction.save();
+
+    // Step 6: Update book availability
     const book = await Book.findById(transaction.book);
     await book.returnBook();
-    
-    // Remove from user's issued books
+
+    // Step 7: Mark book as returned in user's issuedBooks array
     const user = await User.findById(transaction.user);
     const issuedBookIndex = user.issuedBooks.findIndex(
-      book => book.bookId.toString() === transaction.book.toString() && !book.returned
+      b => b.bookId.toString() === transaction.book.toString() && !b.returned
     );
-    
+
     if (issuedBookIndex !== -1) {
       user.issuedBooks[issuedBookIndex].returned = true;
       user.issuedBooks[issuedBookIndex].returnedAt = new Date();
       await user.save();
     }
-    
-    await transaction.save();
-    
+
+    // Step 8: Return success response
     res.json({ message: 'Return completed successfully', transaction });
   } catch (error) {
     console.error(error);
