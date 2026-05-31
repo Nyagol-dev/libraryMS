@@ -8,6 +8,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const { createIndexes } = require('./models/indexes');
+const { startCronJobs } = require('./services/cronJobs');
 
 // Load env vars
 dotenv.config();
@@ -73,6 +74,7 @@ const connectDB = async () => {
     const conn = await mongoose.connect(process.env.MONGO_URI);
     console.log(`MongoDB connected: ${conn.connection.host}`);
     await createIndexes();
+    startCronJobs();
   } catch (err) {
     console.error('MongoDB connection failed:', err.message);
     process.exit(1);
