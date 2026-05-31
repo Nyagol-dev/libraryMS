@@ -1,6 +1,6 @@
 const Transaction = require('../models/Transaction');
 const Book = require('../models/Book');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
 const path = require('path');
 
 const requestEbook = async (req, res) => {
@@ -38,7 +38,7 @@ const requestEbook = async (req, res) => {
       book: bookId,
       type: 'issue',
       status: 'approved',
-      downloadToken: uuidv4(),
+      downloadToken: randomUUID(),
       downloadTokenExpiry: downloadTokenExpiry,
       downloadCount: 0,
       maxDownloads: 3

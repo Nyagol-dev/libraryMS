@@ -11,4 +11,8 @@ module.exports = {
   ],
   coverageDirectory: 'coverage', // Output dir
   verbose: true,                  // Detailed test results
+  // Map ESM-only packages to their CommonJS equivalents for Jest
+  moduleNameMapper: {
+    '^uuid$': '<rootDir>/node_modules/uuid/dist/index.js',
+  },
 };

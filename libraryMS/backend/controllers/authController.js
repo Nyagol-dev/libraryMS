@@ -94,5 +94,10 @@ const getMe = async (req, res) => {
       .populate('issuedBooks.bookId', 'title author');
 
     res.json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
-module.exports = { register, login, getMe }; 
+module.exports = { register, login, getMe };
