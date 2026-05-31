@@ -182,20 +182,33 @@ const deleteUser = async (req, res) => {
 // @access  Private (Admin)
 const getDashboardStats = async (req, res) => {
   try {
-    console.log('Dashboard stats endpoint hit');
-    
-    // Simplified version for debugging
-    const totalUsers = await User.countDocuments({ isActive: true });
-    console.log('Total users:', totalUsers);
-    
+    const [
+      totalUsers,
+      totalBooks,
+      availableBooks,
+      pendingRequests,
+      activeIssues,
+      recentTransactions
+    ] = await Promise.all([
+      User.countDocuments({ isActive: true }),
+      Book.countDocuments({ isActive: true }),
+      Book.countDocuments({ isActive: true, 'availability.availableCopies': { $gt: 0 } }),
+      Transaction.countDocuments({ status: 'pending' }),
+      Transaction.countDocuments({ type: 'issue', status: 'approved', returnedAt: { $exists: false } }),
+      Transaction.find()
+        .populate('user', 'firstName lastName email')
+        .populate('book', 'title author')
+        .sort({ createdAt: -1 })
+        .limit(10)
+    ]);
+
     res.json({
       totalUsers,
-      totalBooks: 0,
-      totalTransactions: 0,
-      pendingRequests: 0,
-      activeIssues: 0,
-      availableBooks: 0,
-      recentTransactions: []
+      totalBooks,
+      availableBooks,
+      pendingRequests,
+      activeIssues,
+      recentTransactions
     });
   } catch (error) {
     console.error('Dashboard stats error:', error);
