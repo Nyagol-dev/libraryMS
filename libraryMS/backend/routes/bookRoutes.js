@@ -9,10 +9,12 @@ const {
 } = require('../controllers/bookController');
 const { protect, admin } = require('../middleware/auth');
 
+const { cacheMiddleware } = require('../middleware/cache');
+
 const router = express.Router();
 
 router.route('/')
-  .get(getBooks)
+  .get(cacheMiddleware(300), getBooks)
   .post(protect, admin, createBook);
 
 router.get('/search', searchBooks);

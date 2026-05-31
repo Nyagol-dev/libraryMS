@@ -11,11 +11,7 @@ const getBooks = async (req, res) => {
     let query = { isActive: true };
     
     if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { author: { $regex: search, $options: 'i' } },
-        { genre: { $regex: search, $options: 'i' } }
-      ];
+      query.$text = { $search: search };
     }
     
     const skip = (page - 1) * limit;
@@ -154,12 +150,7 @@ const searchBooks = async (req, res) => {
     
     const books = await Book.find({
       isActive: true,
-      $or: [
-        { title: { $regex: q, $options: 'i' } },
-        { author: { $regex: q, $options: 'i' } },
-        { genre: { $regex: q, $options: 'i' } },
-        { description: { $regex: q, $options: 'i' } }
-      ]
+      $text: { $search: q }
     }).populate('addedBy', 'firstName lastName');
     
     res.json(books);
