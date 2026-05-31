@@ -7,7 +7,8 @@ const {
   getUser,
   updateUser,
   deleteUser,
-  getDashboardStats
+  getDashboardStats,
+  getDashboardAuditLogs
 } = require('../controllers/userController');
 const { protect, admin } = require('../middleware/auth');
 
@@ -19,7 +20,8 @@ router.route('/profile')
 
 router.get('/transactions', protect, getMyTransactions);
 
-router.get('/stats', protect, admin, getDashboardStats);
+router.get('/audit-logs', protect, admin, getDashboardAuditLogs);
+
 
 router.get('/dashboard/stats', protect, admin, getDashboardStats);
 

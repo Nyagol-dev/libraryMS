@@ -1,4 +1,5 @@
 const Book = require('../models/Book');
+const AuditLog = require('../models/AuditLog');
 const Transaction = require('../models/Transaction');
 
 // @desc    Get all books
@@ -104,6 +105,7 @@ const createBook = async (req, res) => {
     const book = await Book.create(bookData);
     await book.populate('addedBy', 'firstName lastName');
     
+    await AuditLog.record('BOOK_CREATED', req.user._id, { targetBookId: book._id, details: { title: book.title } }, req);
     res.status(201).json(book);
   } catch (error) {
     console.error(error);
@@ -128,6 +130,7 @@ const updateBook = async (req, res) => {
       { new: true, runValidators: true }
     ).populate('addedBy', 'firstName lastName');
     
+    await AuditLog.record('BOOK_UPDATED', req.user._id, { targetBookId: req.params.id }, req);
     res.json(updatedBook);
   } catch (error) {
     console.error(error);
@@ -161,6 +164,7 @@ const deleteBook = async (req, res) => {
     book.isActive = false;
     await book.save();
     
+    await AuditLog.record('BOOK_DELETED', req.user._id, { targetBookId: req.params.id }, req);
     res.json({ message: 'Book deleted successfully' });
   } catch (error) {
     console.error(error);

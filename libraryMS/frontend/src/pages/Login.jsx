@@ -41,7 +41,12 @@ const Login = () => {
 
     setLoading(false);
     if (result.success) {
-      navigate('/dashboard');
+      if (location.state?.from === '/catalog' && location.state?.bookId) {
+        toast.success('Welcome back! You can now request the book.');
+        navigate('/books');
+      } else {
+        navigate('/dashboard');
+      }
     } else {
       setErrors({ form: result.message || 'Login failed. Please try again.' });
     }

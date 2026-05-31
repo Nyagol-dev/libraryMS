@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const AuditLog = require('../models/AuditLog');
 const Transaction = require('../models/Transaction');
 const Book = require('../models/Book');
 
@@ -135,6 +136,7 @@ const updateUser = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    await AuditLog.record('USER_UPDATED', req.user._id, { targetUserId: req.params.id }, req);
     res.json(user);
   } catch (error) {
     console.error(error);
@@ -170,6 +172,7 @@ const deleteUser = async (req, res) => {
     user.isActive = false;
     await user.save();
 
+    await AuditLog.record('USER_DELETED', req.user._id, { targetUserId: req.params.id }, req);
     res.json({ message: 'User deleted successfully' });
   } catch (error) {
     console.error(error);
@@ -216,6 +219,22 @@ const getDashboardStats = async (req, res) => {
   }
 };
 
+// @desc    Get recent audit logs (Admin only)
+// @route   GET /api/users/audit-logs
+// @access  Private (Admin)
+const getDashboardAuditLogs = async (req, res) => {
+  try {
+    const logs = await AuditLog.find()
+      .populate('performedBy', 'firstName lastName email')
+      .sort({ timestamp: -1 })
+      .limit(50);
+    res.json(logs);
+  } catch (error) {
+    console.error('Audit logs error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -224,5 +243,6 @@ module.exports = {
   getUser,
   updateUser,
   deleteUser,
-  getDashboardStats
-}; 
+  getDashboardStats,
+  getDashboardAuditLogs
+};

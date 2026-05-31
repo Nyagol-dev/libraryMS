@@ -1,6 +1,7 @@
 const Transaction = require('../models/Transaction');
 const Book = require('../models/Book');
 const User = require('../models/User');
+const AuditLog = require('../models/AuditLog');
 
 // @desc    Get all transactions (Admin) or user's own transactions (User)
 // @route   GET /api/transactions
@@ -106,6 +107,7 @@ const requestBook = async (req, res) => {
       { path: 'book', select: 'title author' }
     ]);
     
+    await AuditLog.record('TRANSACTION_REQUESTED', req.user._id, { targetTransactionId: transaction._id, targetBookId: bookId }, req);
     res.status(201).json(transaction);
   } catch (error) {
     console.error(error);
@@ -161,6 +163,8 @@ const updateTransactionStatus = async (req, res) => {
       { path: 'approvedBy', select: 'firstName lastName' }
     ]);
     
+    const action = status === 'approved' ? 'TRANSACTION_APPROVED' : 'TRANSACTION_REJECTED';
+    await AuditLog.record(action, req.user._id, { targetTransactionId: transaction._id }, req);
     res.json(transaction);
   } catch (error) {
     console.error(error);
@@ -269,6 +273,7 @@ const completeReturn = async (req, res) => {
     }
 
     // Step 8: Return success response
+    await AuditLog.record('TRANSACTION_COMPLETED', req.user._id, { targetTransactionId: transaction._id }, req);
     res.json({ message: 'Return completed successfully', transaction });
   } catch (error) {
     console.error(error);

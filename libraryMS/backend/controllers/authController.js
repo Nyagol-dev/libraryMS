@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const AuditLog = require('../models/AuditLog');
 const { generateToken } = require('../middleware/auth');
 
 // @desc    Register user
@@ -30,6 +31,7 @@ const register = async (req, res) => {
     });
 
     if (user) {
+      
       res.status(201).json({
         _id: user._id,
         username: user.username,
@@ -63,6 +65,7 @@ const login = async (req, res) => {
         return res.status(401).json({ message: 'Account is deactivated' });
       }
 
+      await AuditLog.record('USER_LOGIN', user._id, {}, req);
       res.json({
         _id: user._id,
         username: user.username,
@@ -70,7 +73,7 @@ const login = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
-        token: generateToken(user._id),
+        token: generateToken(user._id)
       });
     } else {
       res.status(401).json({ message: 'Invalid credentials' });
@@ -91,10 +94,5 @@ const getMe = async (req, res) => {
       .populate('issuedBooks.bookId', 'title author');
 
     res.json(user);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
 
 module.exports = { register, login, getMe }; 

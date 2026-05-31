@@ -69,4 +69,12 @@ export const transactionsAPI = {
   deleteTransaction: (id) => api.delete(`/transactions/${id}`),
 };
 
+// Public API
+export const publicAPI = {
+  getBooks: (params) => api.get('/public/books', { params }),
+  getBook: (id) => api.get(`/public/books/${id}`),
+  searchBooks: (query) => api.get('/public/books/search', { params: { q: query } }),
+  getStats: () => api.get('/public/stats'),
+};
+
 export default api; 
