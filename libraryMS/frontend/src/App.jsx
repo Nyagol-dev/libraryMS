@@ -11,6 +11,8 @@ import AdminUsers from './pages/AdminUsers';
 import AdminTransactions from './pages/AdminTransactions';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
+import LandingPage from './pages/LandingPage';
+import PublicCatalog from './pages/PublicCatalog';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, adminOnly = false }) => {
@@ -56,6 +58,12 @@ function AppRoutes() {
     >
       <Routes>
         {/* Public Routes */}
+        <Route path="/" element={
+          <PublicRoute>
+            <LandingPage />
+          </PublicRoute>
+        } />
+        <Route path="/catalog" element={<PublicCatalog />} />
         <Route path="/login" element={
           <PublicRoute>
             <Login />
@@ -68,13 +76,12 @@ function AppRoutes() {
         } />
 
         {/* Protected Routes */}
-        <Route path="/" element={
+        <Route element={
           <ProtectedRoute>
             <Layout />
           </ProtectedRoute>
         }>
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="books" element={<Books />} />
           <Route path="profile" element={<Profile />} />
           
