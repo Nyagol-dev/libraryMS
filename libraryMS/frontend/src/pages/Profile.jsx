@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { usersAPI } from '../services/api';
+import { usersAPI, ebookAPI } from '../services/api';
 import { 
   User, 
   Mail, 
@@ -11,10 +11,12 @@ import {
   Save,
   X,
   Eye,
-  Clock
+  Clock,
+  Download
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
+import DueDateBadge from '../components/DueDateBadge';
 
 const Profile = () => {
   const { user: authUser } = useAuth();
@@ -112,6 +114,10 @@ const Profile = () => {
 
   const TransactionCard = ({ transaction }) => {
     const TypeIcon = getTypeIcon(transaction.type);
+    const isEbook = transaction.book?.bookType === 'electronic';
+    const now = new Date();
+    const tokenExpiry = transaction.downloadTokenExpiry ? new Date(transaction.downloadTokenExpiry) : null;
+    const tokenValid = tokenExpiry && tokenExpiry > now;
     
     return (
       <div className="card p-4 hover:shadow-md transition-shadow duration-200">
@@ -134,12 +140,38 @@ const Profile = () => {
                 {transaction.dueDate && (
                   <>
                     <span>•</span>
-                    <span>Due: {new Date(transaction.dueDate).toLocaleDateString()}</span>
+                    <span className="inline-flex items-center">
+                      Due: {new Date(transaction.dueDate).toLocaleDateString()}
+                      {!transaction.returnedAt && !isEbook && (
+                        <DueDateBadge dueDate={transaction.dueDate} />
+                      )}
+                    </span>
                   </>
                 )}
               </div>
               {transaction.notes && (
                 <p className="text-sm text-gray-600 mt-2">{transaction.notes}</p>
+              )}
+              {/* Ebook re-download / expiry UI */}
+              {isEbook && transaction.downloadToken && (
+                <div className="mt-3">
+                  {tokenValid ? (
+                    <button
+                      onClick={() => {
+                        const url = ebookAPI.getDownloadLink(transaction.downloadToken);
+                        window.open(url, '_blank');
+                      }}
+                      className="inline-flex items-center space-x-1 text-xs bg-green-100 text-green-800 px-3 py-1 rounded-full hover:bg-green-200 transition-colors"
+                    >
+                      <Download className="h-3 w-3" />
+                      <span>Re-download</span>
+                    </button>
+                  ) : (
+                    <span className="inline-flex items-center text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">
+                      Link Expired
+                    </span>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -403,9 +435,19 @@ const Profile = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <BookOpen className="h-5 w-5 text-green-600" />
-                  <span className="text-sm text-gray-600">Books Issued</span>
+                  <span className="text-sm text-gray-600">Physical Books Borrowed</span>
                 </div>
                 <span className="font-semibold text-gray-900">{activeBooks}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Download className="h-5 w-5 text-blue-600" />
+                  <span className="text-sm text-gray-600">Ebooks Downloaded</span>
+                </div>
+                <span className="font-semibold text-gray-900">
+                  {transactions.filter(t => t.book?.bookType === 'electronic').length}
+                </span>
               </div>
 
               <div className="flex items-center justify-between">

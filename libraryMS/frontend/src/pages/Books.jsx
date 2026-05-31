@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { booksAPI, transactionsAPI } from '../services/api';
+import { booksAPI, transactionsAPI, ebookAPI } from '../services/api';
 import { 
   Search, 
   Plus, 
@@ -13,7 +13,9 @@ import {
   User,
   Eye,
   Edit3,
-  Trash2
+  Trash2,
+  Download,
+  Upload
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
@@ -102,6 +104,19 @@ const Books = () => {
       toast.success('Book request submitted successfully!');
     } catch (error) {
       const message = error.response?.data?.message || 'Failed to request book';
+      toast.error(message);
+    }
+  };
+
+  const handleRequestEbook = async (bookId) => {
+    try {
+      const response = await ebookAPI.requestDownload(bookId);
+      const { downloadToken } = response.data;
+      const downloadUrl = ebookAPI.getDownloadLink(downloadToken);
+      window.open(downloadUrl, '_blank');
+      toast.success('Your download will begin shortly. Link valid for 48 hours');
+    } catch (error) {
+      const message = error.response?.data?.message || 'Failed to initiate download';
       toast.error(message);
     }
   };
@@ -254,16 +269,41 @@ const Books = () => {
               >
                 <Trash2 className="h-4 w-4" />
               </button>
+              {book.bookType === 'electronic' && !book.fileUrl && (
+                <button
+                  className="btn-secondary text-sm py-2 px-3 flex items-center justify-center text-blue-600 hover:bg-blue-50"
+                  title="Upload Ebook"
+                >
+                  <Upload className="h-4 w-4" />
+                </button>
+              )}
             </>
           ) : (
-            book.availability?.availableCopies > 0 && (
-              <button 
-                onClick={() => handleRequestBook(book._id)}
-                className="flex-1 btn-primary text-sm py-2"
-              >
-                Request
-              </button>
-            )
+            <>
+              {book.bookType === 'electronic' ? (
+                <button 
+                  onClick={() => handleRequestEbook(book._id)}
+                  className="flex-1 text-sm py-2 rounded-md font-medium bg-green-600 text-white hover:bg-green-700 transition-colors flex items-center justify-center space-x-1"
+                >
+                  <Download className="h-4 w-4" />
+                  <span>Download Now</span>
+                </button>
+              ) : book.availability?.availableCopies > 0 ? (
+                <button 
+                  onClick={() => handleRequestBook(book._id)}
+                  className="flex-1 btn-primary text-sm py-2"
+                >
+                  Request Book
+                </button>
+              ) : (
+                <button 
+                  disabled
+                  className="flex-1 text-sm py-2 rounded-md font-medium bg-gray-100 text-gray-400 cursor-not-allowed"
+                >
+                  Not Available
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>

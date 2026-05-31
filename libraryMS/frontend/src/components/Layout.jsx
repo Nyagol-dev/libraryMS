@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import useOverdueCount from '../hooks/useOverdueCount';
 import { 
   BookOpen, 
   Home, 
@@ -17,6 +18,7 @@ const Layout = () => {
   const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const overdueCount = useOverdueCount();
 
   const handleLogout = () => {
     logout();
@@ -50,7 +52,10 @@ const Layout = () => {
         className={`mr-3 flex-shrink-0 h-5 w-5 ${mobile ? 'h-6 w-6' : ''}`}
         aria-hidden="true"
       />
-      {item.name}
+      <span className="flex-1">{item.name}</span>
+      {item.name === 'Books' && !isAdmin && overdueCount > 0 && (
+        <span className="ml-2 h-2 w-2 rounded-full bg-red-600 flex-shrink-0" />
+      )}
     </NavLink>
   );
 

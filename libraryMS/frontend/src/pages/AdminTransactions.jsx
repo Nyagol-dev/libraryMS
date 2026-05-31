@@ -13,7 +13,8 @@ import {
   AlertCircle,
   Eye,
   MoreVertical,
-  Trash2
+  Trash2,
+  Download
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
@@ -111,6 +112,9 @@ const AdminTransactions = () => {
     const [showDropdown, setShowDropdown] = useState(false);
     const StatusIcon = getStatusIcon(transaction.status);
     const TypeIcon = getTypeIcon(transaction.type);
+    const isEbook = transaction.book?.bookType === 'electronic';
+    const now = new Date();
+    const tokenExpired = transaction.downloadTokenExpiry && new Date(transaction.downloadTokenExpiry) < now;
 
     return (
       <div className="card hover:shadow-md transition-shadow duration-200">
@@ -131,9 +135,18 @@ const AdminTransactions = () => {
             <div className="flex-1">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {transaction.book?.title || 'Book Title'}
-                  </h3>
+                  <div className="flex items-center space-x-2 mb-1">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {transaction.book?.title || 'Book Title'}
+                    </h3>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${
+                      isEbook 
+                        ? 'bg-blue-100 text-blue-700' 
+                        : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {isEbook ? 'Ebook' : 'Physical'}
+                    </span>
+                  </div>
                   <p className="text-gray-600 mb-2">
                     by {transaction.book?.author || 'Unknown Author'}
                   </p>
@@ -187,7 +200,7 @@ const AdminTransactions = () => {
                       </div>
                     )}
 
-                    {transaction.status === 'approved' && transaction.type === 'issue' && !transaction.returnedAt && (
+                    {transaction.status === 'approved' && transaction.type === 'issue' && !transaction.returnedAt && !isEbook && (
                       <button
                         onClick={() => transactionsAPI.completeReturn(transaction._id).then(() => {
                           toast.success('Book return completed');
@@ -197,6 +210,12 @@ const AdminTransactions = () => {
                       >
                         Mark Returned
                       </button>
+                    )}
+
+                    {isEbook && tokenExpired && (
+                      <span className="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full">
+                        Download Expired
+                      </span>
                     )}
                   </div>
                 </div>
@@ -394,6 +413,7 @@ const AdminTransactions = () => {
     new Date(t.dueDate) < new Date() && 
     !t.returnedAt
   ).length;
+  const ebookDownloadCount = transactions.filter(t => t.book?.bookType === 'electronic').length;
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -455,7 +475,7 @@ const AdminTransactions = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
         <div className="card">
           <div className="flex items-center">
             <div className="flex-shrink-0 p-3 rounded-lg bg-yellow-100">
@@ -500,6 +520,18 @@ const AdminTransactions = () => {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Total</p>
               <p className="text-2xl font-bold text-gray-900">{transactions.length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="flex items-center">
+            <div className="flex-shrink-0 p-3 rounded-lg bg-green-100">
+              <Download className="h-6 w-6 text-green-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Ebook Downloads</p>
+              <p className="text-2xl font-bold text-gray-900">{ebookDownloadCount}</p>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const BASE_URL = API_URL.replace(/\/api$/, '');
 
 const api = axios.create({
   baseURL: API_URL,
@@ -67,6 +68,12 @@ export const transactionsAPI = {
   returnBook: (bookId, notes) => api.post('/transactions/return', { bookId, notes }),
   completeReturn: (id) => api.put(`/transactions/${id}/complete`),
   deleteTransaction: (id) => api.delete(`/transactions/${id}`),
+};
+
+// Ebook API
+export const ebookAPI = {
+  requestDownload: (bookId) => api.post('/ebooks/request', { bookId }),
+  getDownloadLink: (token) => `${BASE_URL}/api/ebooks/download/${token}`,
 };
 
 // Public API

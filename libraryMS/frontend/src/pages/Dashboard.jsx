@@ -9,9 +9,11 @@ import {
   AlertCircle,
   TrendingUp,
   Library,
-  CheckCircle
+  CheckCircle,
+  Download
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
+import DueDateBanner from '../components/DueDateBanner';
 
 const Dashboard = () => {
   const { user, isAdmin } = useAuth();
@@ -40,7 +42,7 @@ const Dashboard = () => {
           ]);
           
           setRecentBooks(booksRes.data.books || []);
-          setMyTransactions(transactionsRes.data.slice(0, 5) || []);
+          setMyTransactions(transactionsRes.data || []);
           
           const issuedBooks = transactionsRes.data.filter(t => 
             t.type === 'issue' && t.status === 'approved' && !t.returnedAt
@@ -49,7 +51,10 @@ const Dashboard = () => {
           setStats({
             issuedBooks,
             totalTransactions: transactionsRes.data.length,
-            pendingRequests: transactionsRes.data.filter(t => t.status === 'pending').length
+            pendingRequests: transactionsRes.data.filter(t => t.status === 'pending').length,
+            ebookDownloads: transactionsRes.data.filter(t => 
+              t.type === 'issue' && t.book?.bookType === 'electronic'
+            ).length
           });
         }
       } catch (error) {
@@ -112,24 +117,22 @@ const Dashboard = () => {
       }
     };
 
-    const getTypeIcon = (type) => {
-      return type === 'issue' ? BookOpen : CheckCircle;
-    };
-
-    const TypeIcon = getTypeIcon(transaction.type);
+    const isEbook = transaction.book?.bookType === 'electronic';
+    const TypeIcon = isEbook ? Download : BookOpen;
+    const typeLabel = isEbook ? 'Downloaded' : 'Borrowed';
 
     return (
       <div className="flex items-center justify-between p-4 border-b border-gray-100 last:border-b-0">
         <div className="flex items-center space-x-3">
           <div className="flex-shrink-0">
-            <TypeIcon className="h-5 w-5 text-gray-400" />
+            <TypeIcon className={`h-5 w-5 ${isEbook ? 'text-green-500' : 'text-gray-400'}`} />
           </div>
           <div>
             <p className="text-sm font-medium text-gray-900">
               {transaction.book?.title || 'Book Title'}
             </p>
             <p className="text-xs text-gray-500 capitalize">
-              {transaction.type} • {new Date(transaction.createdAt).toLocaleDateString()}
+              {typeLabel} • {new Date(transaction.createdAt).toLocaleDateString()}
             </p>
           </div>
         </div>
@@ -150,6 +153,7 @@ const Dashboard = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
+      {!isAdmin && <DueDateBanner transactions={myTransactions} />}
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">
@@ -225,10 +229,10 @@ const Dashboard = () => {
               color="yellow"
             />
             <StatCard 
-              icon={TrendingUp} 
-              title="This Month" 
-              value="5" 
-              subtitle="Books read"
+              icon={Download} 
+              title="Ebook Downloads" 
+              value={stats.ebookDownloads || 0} 
+              subtitle="All time"
               color="blue"
             />
           </>
@@ -266,7 +270,7 @@ const Dashboard = () => {
           </div>
           <div className="space-y-0">
             {(isAdmin ? [] : myTransactions).length > 0 ? (
-              (isAdmin ? [] : myTransactions).map((transaction) => (
+              (isAdmin ? [] : myTransactions).slice(0, 5).map((transaction) => (
                 <TransactionItem key={transaction._id} transaction={transaction} />
               ))
             ) : (
