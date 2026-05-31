@@ -41,6 +41,23 @@ const bookSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  bookType: {
+    type: String,
+    enum: ['physical', 'electronic'],
+    default: 'physical',
+    required: true
+  },
+  fileUrl: {
+    type: String,
+    trim: true
+  },
+  fileSize: {
+    type: Number
+  },
+  fileFormat: {
+    type: String,
+    trim: true
+  },
   availability: {
     totalCopies: {
       type: Number,

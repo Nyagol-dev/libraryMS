@@ -8,6 +8,7 @@ const {
   searchBooks
 } = require('../controllers/bookController');
 const { protect, admin } = require('../middleware/auth');
+const { optionalAuth } = require('../middleware/optionalAuth');
 
 const { cacheMiddleware } = require('../middleware/cache');
 
@@ -20,7 +21,7 @@ router.route('/')
 router.get('/search', searchBooks);
 
 router.route('/:id')
-  .get(getBook)
+  .get(optionalAuth, getBook)
   .put(protect, admin, updateBook)
   .delete(protect, admin, deleteBook);
 

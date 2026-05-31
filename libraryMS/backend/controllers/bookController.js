@@ -48,7 +48,24 @@ const getBook = async (req, res) => {
       return res.status(404).json({ message: 'Book not found' });
     }
     
-    res.json(book);
+    let userHasRequested = false;
+    
+    if (req.user) {
+      const activeTransaction = await Transaction.findOne({
+        user: req.user._id,
+        book: book._id,
+        status: { $in: ['pending', 'approved'] },
+        returnedAt: { $exists: false }
+      });
+      if (activeTransaction) {
+        userHasRequested = true;
+      }
+    }
+    
+    const bookResponse = book.toObject();
+    bookResponse.userHasRequested = userHasRequested;
+    
+    res.json(bookResponse);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });

@@ -21,6 +21,7 @@ const authRoutes = require('./routes/authRoutes');
 const bookRoutes = require('./routes/bookRoutes');
 const userRoutes = require('./routes/userRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const publicRoutes = require('./routes/publicRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -41,6 +42,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 // Routes
+app.use('/api/public', publicRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/users', userRoutes);
