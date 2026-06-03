@@ -11,21 +11,21 @@ const DueDateBadge = ({ dueDate }) => {
   let badgeText = '';
 
   if (daysUntilDue <= 0) {
-    badgeStyle = 'bg-red-100 text-red-800';
+    badgeStyle = 'bg-ak-mahogany-light border border-ak-terracotta text-ak-terracotta';
     badgeText = 'OVERDUE';
   } else if (daysUntilDue <= 1) {
-    badgeStyle = 'bg-orange-100 text-orange-800';
+    badgeStyle = 'bg-ak-mahogany-light border border-ak-terracotta text-[#C4862D]';
     badgeText = 'Due Tomorrow';
   } else if (daysUntilDue <= 3) {
-    badgeStyle = 'bg-yellow-100 text-yellow-800';
+    badgeStyle = 'bg-ak-mahogany-light border border-ak-gold text-ak-gold';
     badgeText = `Due in ${daysUntilDue} days`;
   } else {
-    badgeStyle = 'bg-gray-100 text-gray-800';
+    badgeStyle = 'bg-ak-mahogany-light text-ak-ash';
     badgeText = `Due: ${dueDateObj.toLocaleDateString()}`;
   }
 
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ml-2 ${badgeStyle}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-body font-semibold ml-2 ${badgeStyle}`}>
       {badgeText}
     </span>
   );

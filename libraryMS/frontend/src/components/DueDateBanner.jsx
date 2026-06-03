@@ -43,20 +43,28 @@ const DueDateBanner = ({ transactions }) => {
   return (
     <div className="space-y-3 mb-6 w-full">
       {visibleTransactions.map((t) => {
-        let bannerStyle = '';
+        let bannerBg = '';
+        let bannerBorder = '';
+        let textColor = '';
         let Icon = null;
         let message = '';
 
         if (t.daysUntilDue <= 0) {
-          bannerStyle = 'bg-red-50 border-red-500 text-red-800';
+          bannerBg = 'bg-ak-mahogany-light';
+          bannerBorder = 'border-ak-terracotta';
+          textColor = 'text-ak-terracotta';
           Icon = AlertCircle;
           message = `OVERDUE: ${t.book?.title || 'Book'} was due on ${t.dueDate.toLocaleDateString()}. You may be accumulating fines.`;
         } else if (t.daysUntilDue <= 1) {
-          bannerStyle = 'bg-orange-50 border-orange-500 text-orange-800';
+          bannerBg = 'bg-ak-mahogany-light';
+          bannerBorder = 'border-ak-terracotta';
+          textColor = 'text-[#C4862D]';
           Icon = AlertTriangle;
           message = `${t.book?.title || 'Book'} is due TOMORROW — please return it to your library.`;
         } else if (t.daysUntilDue <= 3) {
-          bannerStyle = 'bg-yellow-50 border-yellow-500 text-yellow-800';
+          bannerBg = 'bg-ak-mahogany-light';
+          bannerBorder = 'border-ak-gold';
+          textColor = 'text-ak-gold';
           Icon = Clock;
           message = `${t.book?.title || 'Book'} is due in ${t.daysUntilDue} days on ${t.dueDate.toLocaleDateString()}.`;
         } else {
@@ -67,17 +75,17 @@ const DueDateBanner = ({ transactions }) => {
         return (
           <div
             key={t._id}
-            className={`flex items-start justify-between p-4 border-l-4 rounded-md shadow-sm transition-all duration-200 ${bannerStyle}`}
+            className={`flex items-start justify-between p-3 border-l-[3px] rounded-md transition-all duration-200 ${bannerBg} ${bannerBorder}`}
           >
-            <div className="flex items-center space-x-3">
-              <Icon className="h-5 w-5 flex-shrink-0" />
-              <p className="text-sm font-medium">{message}</p>
+            <div className="flex items-center gap-2">
+              <Icon className={`h-4 w-4 flex-shrink-0 ${textColor}`} />
+              <p className={`text-xs font-body font-medium ${textColor}`}>{message}</p>
             </div>
             <button
               onClick={() => handleDismiss(t._id)}
-              className="ml-4 flex-shrink-0 inline-flex text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-md"
+              className="ml-4 flex-shrink-0 inline-flex text-ak-gold-dim hover:text-ak-parchment focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-md"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
         );

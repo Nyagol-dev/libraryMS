@@ -4,28 +4,77 @@
 
 @layer base {
   body {
-    @apply font-sans bg-gray-50 text-gray-900;
+    @apply font-body bg-ak-ebony text-ak-parchment antialiased;
+  }
+
+  /* Selection styling */
+  ::selection {
+    background-color: rgba(200, 150, 12, 0.3);
+    color: #F5EDD8;
+  }
+
+  /* Custom scrollbar for dark theme */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #120A02;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #3D1A08;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #6B4F3A;
   }
 }
 
 @layer components {
   .btn {
-    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply px-4 py-2 rounded-ak font-body font-semibold text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-ak-ebony;
   }
-  
+
   .btn-primary {
-    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+    @apply btn bg-ak-gold text-ak-ebony hover:scale-[1.02] focus:ring-ak-gold;
   }
-  
+
   .btn-secondary {
-    @apply btn bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500;
+    @apply btn border border-ak-mahogany text-ak-ash hover:border-ak-gold hover:text-ak-parchment focus:ring-ak-mahogany;
   }
-  
+
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+    @apply bg-ak-mahogany-dark border border-ak-mahogany-light rounded-lg p-6 transition-all duration-200;
   }
-  
+
+  .card:hover {
+    border-color: #C8960C;
+  }
+
   .input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply w-full px-3 py-2.5 bg-[#2A1006] border border-ak-mahogany rounded-ak text-ak-parchment placeholder-ak-dark-text font-body focus:outline-none focus:ring-2 focus:ring-ak-gold focus:border-ak-gold transition-colors;
   }
-} 
+
+  /* Skeleton shimmer with Kente gold */
+  .skeleton {
+    @apply relative overflow-hidden bg-ak-mahogany-light rounded-ak;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 animate-shimmer;
+    background: rgba(200, 150, 12, 0.12);
+  }
+
+  /* Page entry animation with stagger support */
+  .page-enter {
+    @apply animate-fade-in-up;
+  }
+
+  /* Stagger delays for children */
+  .stagger-1 { animation-delay: 60ms; }
+  .stagger-2 { animation-delay: 120ms; }
+  .stagger-3 { animation-delay: 180ms; }
+  .stagger-4 { animation-delay: 240ms; }
+  .stagger-5 { animation-delay: 300ms; }
+  .stagger-6 { animation-delay: 360ms; }
+}

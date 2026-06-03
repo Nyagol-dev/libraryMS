@@ -108,15 +108,29 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-ak-ebony">
         <AppRoutes />
         <Toaster 
           position="top-right"
           toastOptions={{
             duration: 4000,
             style: {
-              background: '#363636',
-              color: '#fff',
+              background: '#2E1608',
+              color: '#F5EDD8',
+              border: '1px solid #3D1A08',
+              fontFamily: '"Source Sans 3", system-ui, sans-serif',
+            },
+            success: {
+              iconTheme: {
+                primary: '#C8960C',
+                secondary: '#1C0F05',
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: '#C4622D',
+                secondary: '#1C0F05',
+              },
             },
           }}
         />
@@ -125,4 +139,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;
